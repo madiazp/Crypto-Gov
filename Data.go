@@ -1,24 +1,46 @@
+// Estructuras de datos basicas para almacenar informacion en los nodos revisores
+// Por el momento se esta fijando el algoritmo de hash a sha256 (El cual puede o no cambiar)
+// y el metodo de firma digital a rsa.
+
 package Data
 import (
         "fmt"
         "crypto/rsa"
         "crypto"
 )
-
+// Estructura de la transacción, por ahora lleva un mensaje en texto plano, la idea es que
+// lleve un contrato inteligente a ejecutar
 type TX struct {
 
   value  String
 
 }
 
+////////////////////////////////////////////////////////
+
+
+//Entry es la estructura de los mensajes
+// contiene el valor del mensaje, que es la transacción (El payload), y el conjunto de firmas y pubkeys de
+// los revisores que han confirmado el mensajes.
+// Se debe entender que las firmas están en cadena (y por lo tanto en orden) de la forma:
+//
+//         [Sn= sign(H(Sn-1),PKn), Sn-1= sign(H(Sn-2),PKn-1),..., S1=sign(H(Value),PK1)]
+//
+// Donde H() es el metodo de Hash (SHA256 por ahora) y PKn es la private Key del validador n
+// Notar que para validar estas firmas solo se necesita el valor "Value" inicial (El payload) y las llaves públicas
+// de los validadores
+
+
+
 type Entry struct {
 
-  val        TX
-  signatures [][]byte
-  pubkeys    []rsa.PubKeys
+  val        TX            // El payload
+  signatures [][]byte      // el slice de firmas de los validadores
+  pubkeys    []rsa.PubKeys // el slice con las llaves publicas de los validadores
 
 }
-
+// verifica todas las firmas en cadena del mensaje, retorna false si una de las firmas no concuerda
+// returna true ssi todas las firmas concuerdan, notar que la cantidad de firmas debe ser igual  a la cantidad de pubkeys
 func (e *Entry) EntryVerify() (bool, err){
 
   if len(e.signatures) != len(e.pubkeys){
@@ -40,7 +62,8 @@ func (e *Entry) EntryVerify() (bool, err){
     }
     return true
   }
-
+// metodo que agrega la firma del revisor al mensaje, esta firma se hace respecto a la ultima firma contenida
+//en el mensaje, en el caso de ser el primer revisor se usa al valor del mensaje
   func (e *Entry) SignValue( pub rsa.PublicKey, prv rsa.PrivateKey) error {
     var hashed []byte
     if e.signatures != nil {
@@ -55,6 +78,12 @@ func (e *Entry) EntryVerify() (bool, err){
   }
   append(e.signatures,sign)
   append(e.pubkeys,pub)
-
-
 }
+
+// funcion que setea el value
+// notar que si se cambia el valor de una entrada previamente firmada por un validador, la primera firma
+// será inválida, lo que invalidará toda el mensaje
+
+  func(e *Entry) SetValue( val TX){
+    e.value = val
+  }
