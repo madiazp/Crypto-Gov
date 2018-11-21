@@ -19,7 +19,7 @@ type TX struct {
 ////////////////////////////////////////////////////////
 
 
-//Entry es la estructura de los mensajes
+//Msg es la estructura de los mensajes
 // contiene el valor del mensaje, que es la transacción (El payload), y el conjunto de firmas y pubkeys de
 // los revisores que han confirmado el mensajes.
 // Se debe entender que las firmas están en cadena (y por lo tanto en orden) de la forma:
@@ -32,7 +32,7 @@ type TX struct {
 
 
 
-type Entry struct {
+type Msg struct {
 
   val        TX            // El payload
   signatures [][]byte      // el slice de firmas de los validadores
@@ -41,7 +41,7 @@ type Entry struct {
 }
 // verifica todas las firmas en cadena del mensaje, retorna false si una de las firmas no concuerda
 // returna true ssi todas las firmas concuerdan, notar que la cantidad de firmas debe ser igual  a la cantidad de pubkeys
-func (e *Entry) EntryVerify() (bool, err){
+func (e *Msg) MsgVerify() (bool, err){
 
   if len(e.signatures) != len(e.pubkeys){
     return false
@@ -64,7 +64,7 @@ func (e *Entry) EntryVerify() (bool, err){
   }
 // metodo que agrega la firma del revisor al mensaje, esta firma se hace respecto a la ultima firma contenida
 //en el mensaje, en el caso de ser el primer revisor se usa al valor del mensaje
-  func (e *Entry) SignValue( pub rsa.PublicKey, prv rsa.PrivateKey) error {
+  func (e *Msg) SignValue( pub rsa.PublicKey, prv rsa.PrivateKey) error {
     var hashed []byte
     if e.signatures != nil {
       hashed = sha256.Sum256(e.signatures[len(e.signatures)-1])
@@ -84,6 +84,34 @@ func (e *Entry) EntryVerify() (bool, err){
 // notar que si se cambia el valor de una entrada previamente firmada por un validador, la primera firma
 // será inválida, lo que invalidará toda el mensaje
 
-  func(e *Entry) SetValue( val TX){
+func (e *Msg) SetValue( val TX){
     e.value = val
   }
+func (e *Msg) getVal() TX{
+  return e.val
+}
+func (e *Msg)getId() []byte{
+  return sha256.Sum256([]byte(e.val))
+}
+func (e *Msg) getDepth() int {
+  return len(e.signatures)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+
+// Estructura que guarda el cache de transacciones en el nodo
+// simplifica la tarea de validar, buscar la transacción y actualizar las validaciones
+// Este cache NO reemplaza la suma total
+
+type TXEntry struct {
+  msge Msg
+  id := msge.getId()
+  nValidators :=  msge.getDepth()
+}
+// updatea las firmas
+func (t *TXEntry) UpdateMsg(msg Msg){
+  if msg.getId() == t.id {
+    t.msge = msg
+    t.nValidators = msg.getDepth()
+  }
+}
