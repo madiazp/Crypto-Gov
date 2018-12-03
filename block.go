@@ -14,6 +14,7 @@ type Ublock struct {
 
 }
 func (u *Ublock) InitBlock(phash []byte, time string, load TX){
+
         u.prevHash = phash
         u.timeStamp = time
         u.payload = load
@@ -56,25 +57,18 @@ func (b *Block) VerifyTXS() (bool, error)  {
 
 }
 
-func (b *Block) SelfSign() error {
-      var err error
-      b.selfhash, err = sha256.Sum256(fmt.Sprintf("%v",b.ublk))
-      return err
-}
 
 func (b *Block) SelfVerifySign() (bool, error) {
-      test, err := sha256.Sum256(fmt.Sprintf("%v",b.ublk))
-      if err != nil || test != b.selfhash{
-        return false, err
-      }
-      return true
+
 }
+
 func (b *Block) SelfVerify() (bool, error) {
-      if (b.SelfVerifySign()) { return false,nil }
 
 }
+func (b *Block) GetAMsg( msghash []byte ) string{
 
-////////////////////////////////////////////7
+}
+////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////Estructuras Auxiliares //////////////////////////////////////
@@ -82,26 +76,29 @@ func (b *Block) SelfVerify() (bool, error) {
 //Transacciones
 type TX struct {
 
-      msgs []string
+      msgs map[[]byte]string
 }
 
-func (t *TX) GetMsgs() []string {
+func (t *TX) GetMsgs() map[[]byte]string {
       return t.msgs
 }
 
+func (t *TX) GetAMsg( h []byte) string {
+        return t.msgs[h]
+}
+
 func (t *TX) AddMsg (mg string) {
-      append(t.msgs,mg)
+       t.msgs[hashme(mg)] = mg
+}
+
+func (t *TX) Exist (h []byte) {
+        _,ok := t.msgs[h]
+        return ok
 }
 
 func (t *TX) VerifyMSGS() (bool)  {
-      for i := range t.msgs {
-        if t.msgs[i] != "True" {
-          return false
-        }
-      }
-      return true
-}
 
+}
 
 /////////////////////////////////////////
 //Merkle Tree
