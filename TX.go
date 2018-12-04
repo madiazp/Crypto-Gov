@@ -86,6 +86,10 @@ func (t *TX) ExecTX() bool {
         }
         return true
 }
+
+func (t *TX) TXSize() int{
+        return len(t.content)
+}
 ////////////////////////////////////////
 //Vote
 
