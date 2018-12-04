@@ -15,10 +15,7 @@ type MTree struct {
 }
 
 func (m *MTree) InitTree(load TX) {
-        msgs := load.GetMsgs()
-        for _,msg := range msgs {
 
-        }
 }
 func (m *MTree) GetHashroot() []byte {
 
