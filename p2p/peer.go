@@ -12,6 +12,11 @@ type Peer struct{
         leafs       map[string]Peer
 
 }
+func (p *Peer) NewPeer(adr,prt string){
+        p.addr = adr
+        p.port = prt
+        p.MakeId()
+}
 ///// Metodos GET
 
 func (p *Peer) GetAddr() string{
@@ -31,13 +36,13 @@ func (p *Peer) GetLeafs() map[string]Peer{
 }
 
 func (p *Peer) GetALeaf( pid string) Peer{
-        return p.leafs(pid)
+        return p.leafs[pid]
 }
 
 func (p *Peer) GetLeafsIds() []string{
         var lfsid []string
-        for _,ids := range p.leafs{
-                append(ids,lfsid)
+        for ids := range p.leafs {
+                lfsid = append(lfsid,ids)
         }
         return lfsid
 }
