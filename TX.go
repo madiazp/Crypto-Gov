@@ -11,11 +11,11 @@ import (
 
 type TX struct {
 
-        content map[string]Vote
-        contHash [32]byte
-        txPubKey rsa.PublicKey
-        txSign []byte
-        signAddr [32]byte
+        content         map[string]Vote
+        contHash        [32]byte
+        txPubKey        rsa.PublicKey
+        txSign          []byte
+        signAddr        [32]byte
 }
 
 func (t *TX) NewTX( cnt map[string]Vote, pbky rsa.PublicKey, sgn []byte ){

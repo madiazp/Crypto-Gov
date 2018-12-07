@@ -8,10 +8,10 @@ import (
 //Merkle Tree
 
 type MTree struct {
-        root *Node
-        hashroot []byte
-        midnodes []*Node
-        leafs []*Node
+        root             *Node
+        hashroot        []byte
+        midnodes       []*Node
+        leafs          []*Node
 }
 
 func (m *MTree) InitTree(load TX) {
@@ -36,12 +36,12 @@ func (m *MTree) GetANode (nodehash []byte) *Node{
 //////////////////////////////////////
 // Node
 type Node struct {
-        parent *Node
-        lchild *Node
-        rchild *Node
-        leaf bool
-        dup bool
-        hash []byte
+        parent  *Node
+        lchild  *Node
+        rchild  *Node
+        leaf     bool
+        dup      bool
+        hash   []byte
 }
 
 func (n *Node) InitNode() {

@@ -42,6 +42,7 @@ func (u *Block) GetHash() [32]byte{
         return u.selfHash
 }
 // funciones de utilidad
+
 func (u *Block) BlockSize() int{
         return u.payload.TXSize()
 }
