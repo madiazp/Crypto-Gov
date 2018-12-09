@@ -12,10 +12,10 @@ import (
 type TX struct {
 
         content         map[string]Vote
-        contHash        [32]byte
+        contHash        string
         txPubKey        rsa.PublicKey
         txSign          []byte
-        signAddr        [32]byte
+        signAddr        string
 }
 
 func (t *TX) NewTX( cnt map[string]Vote, pbky rsa.PublicKey, sgn []byte ){
@@ -39,7 +39,7 @@ func (t *TX) GetSign() []byte{
         return t.txSign
 
 }
-func (t *TX) GetHash() [32]byte{
+func (t *TX) GetHash() string{
         return t.contHash
 }
 
@@ -47,7 +47,7 @@ func (t *TX) GetAVote( h string) Vote {
         return t.content[h]
 }
 
-func (t *TX) GetAddr() [32]byte{
+func (t *TX) GetAddr() string{
         return t.signAddr
 }
 //Funciones de Utilidad
@@ -59,11 +59,11 @@ func (t *TX) Exist (hs string) bool {
 }
 
 func (t *TX) HashTheContent(){
-        t.contHash = hashme(t.content)
+        t.contHash = hexme(hashme(t.content))
 }
 
 func (t *TX) MakeAddr(){
-        t.signAddr = hashme(t.txPubKey)
+        t.signAddr = hexme(hashme(t.txPubKey))
 }
 
 func (t *TX) MakeTX(cnt map[string]Vote, prky rsa.PrivateKey, pbky rsa.PublicKey) error {
@@ -99,7 +99,7 @@ type Vote struct{
         value   string
         sign    []byte
         pubKey  rsa.PublicKey
-        addr    [32]byte
+        addr    string
 
 }
 
@@ -123,13 +123,13 @@ func (v *Vote) GetPub() rsa.PublicKey{
         return v.pubKey
 }
 
-func (v *Vote) GetAddr() [32]byte{
+func (v *Vote) GetAddr() string{
         return v.addr
 }
 //metodos de utilidad
 
 func (v *Vote) MakeAddr(){
-        v.addr = hashme(v.pubKey)
+        v.addr = hexme(hashme(v.pubKey))
 }
 
 func (v *Vote) MakeVote( val string, prky rsa.PrivateKey, pbky rsa.PublicKey) error {
@@ -155,6 +155,11 @@ func (v *Vote) ExecVote() bool {
 }
 ///////////////////////////////////////////
 /////////////Funciones auxiliares////////////
+func hexme( value interface{} ) string {
+        str := toString(value)
+        return hex.EncodeToString([]byte(str))
+
+}
 
 func hashme( value interface{} ) [32]byte {
 

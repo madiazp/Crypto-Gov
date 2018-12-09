@@ -1,14 +1,15 @@
-package peer
+package p2p
 
 import (
         "fmt"
         "crypto/sha256"
+        "encoding/hex"
 )
 
 type Peer struct{
         addr        string
         port        string
-        id      [32]byte
+        id          string
         leafs       map[string]Peer
 
 }
@@ -27,7 +28,7 @@ func (p *Peer) GetPort() string{
         return p.port
 }
 
-func (p *Peer) GetID() [32]byte{
+func (p *Peer) GetID() string{
         return p.id
 }
 
@@ -58,12 +59,17 @@ func (p *Peer) AddALeaf( leaf Peer) {
 }
 
 func (p *Peer) MakeId(){
-        p.id = hashme(p.addr)
+        p.id = hexme(hashme(p.addr))
 }
 
 
 //////////////////////////////////////////////////////////
 /////////////////////////Funciones Auxiliares //////////////
+func hexme( value interface{} ) string {
+        str := toString(value)
+        return hex.EncodeToString([]byte(str))
+
+}
 
 func hashme( value interface{} ) [32]byte{
 

@@ -8,14 +8,14 @@ import (
 ///// definicion del bloque
 type Block struct {
 
-        prevHash        [32]byte
+        prevHash        string
         //merkelTree      MTree
         timeStamp       string
         payload         tx.TX
-        selfHash        [32]byte
+        selfHash        string
 
 }
-func (u *Block) InitBlock(phash [32]byte, time string, load tx.TX){
+func (u *Block) InitBlock(phash string, time string, load tx.TX){
 
         u.prevHash = phash
         u.timeStamp = time
@@ -34,11 +34,11 @@ func (u *Block) GetTimeStamp() string{
         return u.timeStamp
 }
 
-func (u *Block) GetPrevHash() [32]byte{
+func (u *Block) GetPrevHash() string{
         return u.prevHash
 }
 
-func (u *Block) GetHash() [32]byte{
+func (u *Block) GetHash() string{
         return u.selfHash
 }
 // funciones de utilidad
@@ -49,7 +49,7 @@ func (u *Block) BlockSize() int{
 
 func (u *Block) SignTheBlock(){
         content := toString(u.prevHash)+toString(u.timeStamp)+toString(u.payload) //+toString(u.merkelTree)
-        u.selfHash = hashme(content)
+        u.selfHash = hexme(hashme(content))
 }
 
 ////////////////////////////////////////////
@@ -58,7 +58,11 @@ func (u *Block) SignTheBlock(){
 ///////////////////////////////////////////////////////////////
 ///////////////////Funciones auxiliares ///////////////////////
 ///////////////////////////////////////////////////////////////
+func hexme( value interface{} ) string {
+        str := toString(value)
+        return hex.EncodeToString([]byte(str))
 
+}
 
 func hashme( value interface{} ) [32]byte{
 
