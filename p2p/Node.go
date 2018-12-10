@@ -66,12 +66,13 @@ func (n *Node) GetID() string{
 
 // Inicia la rutina que escucha conexiones de entrada
 // Dependiendo de la señal de interrupcion puede hacer Stop: Esperará a que todas
-//las rutinas de conexión termine antes de terminar,
-//Halt: terminará abruptamente
-func (n *Node) Start(){
-        var wg sync.WaitGroup
+// las rutinas de conexión termine antes de terminar,
+// Halt: terminará abruptamente
+// Debe ser invocado con un waitgroup seteado para esperar su término
+func (n *Node) Start(wg *sync.WaitGroup, pnd *PNode){
+
         wg.Add(1)
-        go n.handler.Start(&wg)
+        go n.handler.Start(wg,pnd)
         select{
         case a:= <-n.interrupt:
                 if a == 1{
@@ -98,7 +99,7 @@ func (n *Node) Halt(){
         n.interrupt <- 0
 }
 // Envía el mensaje msg al nodo tosend
-func (n *Node) Send(msg string, tosend Node){
+func (n *Node) Send(msg string, tosend Peer){
         n.handler.Send(msg,tosend)
 }
 //////////////////////////////////////////////////
@@ -123,15 +124,14 @@ func (h *Handler) NewHandler( n Node){
         h.port = n.GetPort()
 
 
-
-
 }
+
 //////////Metodos de Utilidad /////////////
 
 // crea un listener y se pone a escuchar en la dirección y puerto del nodo
 // si una conexión entra la manda a un hilo que la procesará
 
-func (h *Handler) Start(wg *sync.WaitGroup) {
+func (h *Handler) Start(wg *sync.WaitGroup, pastrynode *PNode) {
 
         fmt.Println("Starting")
         fulladr := string(h.addr+":"+h.port)
@@ -150,7 +150,7 @@ func (h *Handler) Start(wg *sync.WaitGroup) {
                         log.Println(err)
                         return
                 }
-                go h.HandleCon(conn, wg)
+                go pastrynode.HandleCon(conn, wg)
                 wg.Add(1)
 
                 fmt.Println("handled")
@@ -162,20 +162,10 @@ func (h *Handler) Start(wg *sync.WaitGroup) {
 }
 
 // procesa el mensaje llegado
-func (h *Handler) HandleCon(cn net.Conn, wg *sync.WaitGroup){
-        log.Println("Received")
 
-        buff,err := ioutil.ReadAll(cn)
-        Fatal(err)
-        fmt.Println(string(buff))
-        wg.Done()
-
-        defer cn.Close()
-
-}
 //Envia msg al nodo tonode
 //Espera 3 segundos antes de fallar por time out
-func (h *Handler) Send(msg string, toNode Node){
+func (h *Handler) Send(msg string, toNode Peer){
 
         wait, err := time.ParseDuration("3s")
         Fatal(err)
