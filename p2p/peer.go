@@ -7,34 +7,70 @@ import (
 )
 
 type Peer struct{
-        addr        string
-        port        string
-        id          string
+        Addr        string
+        Port        string
+        Id          string
 
 }
 func (p *Peer) NewPeer(adr,prt string){
-        p.addr = adr
-        p.port = prt
+        fmt.Println(adr)
+        fmt.Println(prt)
+        p.Addr = adr
+        p.Port = prt
         p.MakeId()
 }
 ///// Metodos GET
 
 func (p *Peer) GetAddr() string{
-        return p.addr
+        return p.Addr
 }
 
 func (p *Peer) GetPort() string{
-        return p.port
+        return p.Port
 }
 
 func (p *Peer) GetID() string{
-        return p.id
+        return p.Id
 }
 
 ////// Utilidades
 func (p *Peer) MakeId(){
-        p.id = hexme(hashme(p.addr))
+        p.Id = hexme(hashme(p.Addr))
 }
+
+
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+type PPeer struct{
+        *Peer
+        parent          Peer
+        children        map[string]Peer
+        leafs           map[string]Peer
+        rtcache         map[string]Peer
+}
+////////// Metodos Get
+
+
+func (p *PPeer) GetLeafs() map[string]Peer{
+        return p.leafs
+}
+
+func (p *PPeer) GetRoutingTableCache() map[string]Peer{
+        return p.rtcache
+}
+
+/////////// Metodos de configuracion de la red
+
+func (p *PPeer) NewPPeer(adr, prt string){
+
+        p.NewPeer(adr,prt)
+        //p.parent = prnt
+
+
+}
+
+
 
 
 //////////////////////////////////////////////////////////
