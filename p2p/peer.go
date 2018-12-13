@@ -142,8 +142,10 @@ func (p *PPeer) RemoveChild( chkey string){
 }
 
 func (p *PPeer) AddToCache( per Peer){
-        if _,is := p.rtcache[per.GetID()]; is == false {
-                p.rtcache[per.GetID()] = per
+        
+        dist := p.addressDistance(per)
+        if _,is := p.rtcache[dist][per.GetID()]; is == false {
+                p.rtcache[dist][per.GetID()] = per
         } else {
                 log.Println(PASTRYERROR_02)
         }
